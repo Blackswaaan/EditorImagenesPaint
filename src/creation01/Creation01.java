@@ -4,307 +4,804 @@
  * and open the template in the editor.
  */
 package creation01;
-import javax.swing.ButtonGroup;
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JColorChooser;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
-import javax.swing.JMenuBar;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JRadioButtonMenuItem;        
-import java.awt.Color;
-import java.awt.Shape;
-import java.awt.Point;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Cursor;    
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseMotionAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.geom.Ellipse2D;
-import java.awt.geom.Rectangle2D;
-import java.awt.geom.Line2D;
-import java.awt.image.BufferedImage;
+/**
+ * importando las librerias necesarias
+ */
 import java.io.File;
 import java.io.IOException;
-import java.util.Random;
-import javax.swing.Action;
+import javax.imageio.ImageIO;
+import javax.swing.JFileChooser;
 
-public class Creation01 extends JFrame implements ActionListener{
-    // Botones
-    JMenu archivo, dibujar, ayuda;
-    JMenuItem acerca, salir, nuevo, guardar, abrir, color;
-    JRadioButtonMenuItem linea, rectangulo, elipse;
-    JCheckBoxMenuItem relleno;
-    JColorChooser colorChooser = new JColorChooser();
-    ButtonGroup btn;
-    MiPanel miPanel;
-    public Creation01(){
-        crearmenu();
-        addListeners();
-        miPanel = new MiPanel();
-        this.add(miPanel);
-        this.setSize(800, 600);
-        this.setVisible(true);
-        this.setLocationRelativeTo(null);
-        this.setTitle(" Creation");
-    }    
-    private void addListeners(){
-        acerca.addActionListener(this);
-        salir.addActionListener(this);
-        nuevo.addActionListener(this);
-        guardar.addActionListener(this);
-        abrir.addActionListener(this);
-        color.addActionListener(this);
-        linea.addActionListener(this);
-        
-    }
-    // MENU
-    public void crearmenu(){
-                JMenuBar menu = new JMenuBar();
-                archivo = new JMenu (" Archivo");
-                nuevo = new JMenuItem("Nuevo");
-                abrir = new JMenuItem("Abrir");
-                guardar = new JMenuItem("Guardar");
-                salir = new JMenuItem("Salir");
-                archivo.add(nuevo);
-                archivo.add(abrir);
-                archivo.add(guardar);
-                archivo.add(salir); menu.add(archivo);
-                
-                dibujar = new JMenu(" Trazos"); btn = new ButtonGroup();
-                linea = new JRadioButtonMenuItem(" Linea");
-                rectangulo = new JRadioButtonMenuItem("Rectangulo");
-                elipse = new JRadioButtonMenuItem("Elipse");
-                btn.add(elipse);
-                btn.add(rectangulo);
-                btn.add(linea);
-                btn.setSelected(linea.getModel(),true);
-                relleno = new JCheckBoxMenuItem("Relleno");
-                color = new JMenuItem("Color");
-                dibujar.add(linea);
-                dibujar.add(rectangulo);
-                dibujar.add(elipse);
-                dibujar.add(relleno);
-                dibujar.add(color);
-                menu.add(dibujar);
-                
-                ayuda = new JMenu("Mas");
-                acerca = new JMenuItem(" By");
-                ayuda.add(acerca);
-                menu.add(ayuda);
-                this.setJMenuBar(menu);
-       
-    }
-    //Eventos de los botones
-    public void actionPerformed (ActionEvent e) {
-                if(e.getSource()== nuevo){
-                    miPanel.resetAll();
-                }
-                if(e.getSource()== abrir){
-                    miPanel.resetAll();
-                }
-                if(e.getSource()== guardar){
-                    miPanel.resetAll();
-                }
-                if(e.getSource()== salir){
-                    System.exit(0);
-                }
-                if(e.getSource()== linea){
-                    miPanel.linea = true;
-                    miPanel.rectangulo=false;
-                }
-                if(e.getSource()== rectangulo){
-                    miPanel.linea = false;
-                    miPanel.rectangulo=true;
-                }
-                if(e.getSource()== elipse){
-                    miPanel.linea = false;
-                    miPanel.rectangulo=false;
-                }
-                //Figuras rellenas
-                if(e.getSource()== relleno){
-                    if(miPanel.relleno){
-                        miPanel.relleno = false;  
-                    }else{
-                            miPanel.relleno = true;
-                    }        
-                }
-                if(e.getSource()== color){
-                        Color color = JColorChooser.showDialog(this, "Elija un color", this.miPanel.getColorActual());
-                    this.miPanel.setColorActual(color);
-                if(e.getSource()== acerca){
-                        JOptionPane.showMessageDialog(null, " Angie");
-                }
-                   
-                }
-    }
-    
-} 
+/**
+ *
+ * @author angie
+ 
+ */
+public class Creation01 extends javax.swing.JFrame {
 
-// Clase para el panel
-class MiPanel extends JPanel {
-        Point p1;
-        Point p2;
-        Shape figura;
-        Random R = new Random();
-        
-    public Color coloractual = Color.MAGENTA;
-        BufferedImage myImage;
-        Graphics2D g2D;
-        boolean rectangulo = false;
-        boolean linea = true;
-        boolean relleno= false;
-        
-        public MiPanel(){
-            OyenteDeRaton miOyente = new OyenteDeRaton();
-            OyenteDeMovimiento miOyente2 = new OyenteDeMovimiento();
-            addMouseListener(miOyente);
-            addMouseMotionListener(miOyente2);
-      
-        }
-        public Color getColorActual(){
-            return coloractual;
-        }
-        public void setColorActual(Color color){
-            coloractual = color;
-        }
-        public Graphics2D crearGraphics2D(){
-            Graphics2D g2 = null;
-            if(myImage == null || myImage.getWidth()!= getSize().width
-                               || myImage.getHeight() != getSize().height){
-                    myImage = (BufferedImage) createImage(getSize().width, getSize().height);
-            }
-            if(myImage != null){
-                    g2 = myImage.createGraphics();
-                    g2.setColor(coloractual);
-                    g2.setBackground(getBackground());
-            }
-            g2.clearRect(0, 0, getSize().width,getSize().height);
-            return g2;
-        }
-        public void paintComponent (Graphics g){
-                super.paintComponent(g);
-                if( myImage == null){
-                    g2D = crearGraphics2D();
-                }
-                if(figura !=null){
-                    if(relleno){
-                            g2D.setColor(coloractual);
-                            g2D.draw(figura);
-                            g2D.draw(figura);
-                    }else{
-                            g2D.setColor(coloractual);
-                            g2D.draw(figura);
-                    }
-                    if(myImage != null && isShowing()) {
-                            g.drawImage(myImage, 0, 0, this);
-                    }
-                    figura=null;
-                }
-        }
-        public void resetAll(){
-            myImage = null;
-            repaint();
-        }
-        // Creacion de Figuras
-        public Shape crearFigura (Point p1, Point p2){
-                double xInicio = Math.min(p1.getX(), p2.getX());
-                double yInicio = Math.min(p1.getY(), p2.getY());
-                double ancho = Math.abs( p2.getX()- p1.getX());
-                double altura = Math.abs(p2.getY()-p1.getY());
-                Shape nuevaFigura = new Rectangle2D.Double(xInicio, yInicio, ancho, altura);
-                return nuevaFigura;   
-        }
-        public Shape crearLinea(Point p1, Point p2){
-                Shape nuevaFigura = new Line2D.Double(p1.getX(),p1.getY(), p2.getX(),p2.getY());
-                return nuevaFigura;
-        }
-        public Shape crearElipse(Point p1, Point p2){
-                double xInicio = Math.min(p1.getX(), p2.getX());
-                double yInicio = Math.min(p1.getY(), p2.getY());
-                double ancho = Math.abs( p2.getX()- p1.getX());
-                double altura = Math.abs(p2.getY()-p1.getY());
-                Shape nuevaFigura = new Ellipse2D.Double(xInicio, yInicio, ancho, altura);
-                return nuevaFigura;  
-        }
-        class OyenteDeRaton extends MouseAdapter{
-            public void mousePressed(MouseEvent evento){
-                MiPanel.this.setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
-                p1 = evento.getPoint();
-            }
-            public void mouseReleased (MouseEvent evento){
-                    MiPanel.this.setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
-                    if(rectangulo){
-                            p2 = evento.getPoint();
-                            figura = crearFigura(p1, p2);
-                            repaint();            
-                    }else{
-                            if(linea){
-                                p2 = evento.getPoint();
-                                figura = crearLinea(p1, p2);
-                                repaint();
-                            }else{
-                                p2 = evento.getPoint();
-                                figura = crearElipse(p1, p2);
-                                repaint();
-                            }
-                repaint();
-            }
-        }
-        }
-        class OyenteDeMovimiento extends MouseMotionAdapter{
-                public void mouseDragged(MouseEvent evento){
-                    Graphics2D g2D;
-                    if(rectangulo){
-                        if(figura != null){
-                                g2D = (Graphics2D)MiPanel.this.getGraphics();
-                                g2D.setXORMode(MiPanel.this.getBackground());
-                                g2D.setColor(coloractual);
-                                g2D.draw(figura);
-                        }
-                        p2 = evento.getPoint();
-                        figura = crearFigura(p1, p2);
-                        g2D = (Graphics2D) MiPanel.this.getGraphics();
-                        g2D.setXORMode( MiPanel.this.getBackground());
-                        g2D.setColor(coloractual);
-                        g2D.draw(figura);
-                    }else if(linea){
-                        if(figura != null){
-                                g2D = (Graphics2D)MiPanel.this.getGraphics();
-                                g2D.setXORMode(MiPanel.this.getBackground());
-                                g2D.setColor(coloractual);
-                                g2D.draw(figura);
-                        }
-                        p2 = evento.getPoint();
-                        figura = crearLinea(p1, p2);
-                        g2D = (Graphics2D)MiPanel.this.getGraphics();
-                        g2D.setXORMode( MiPanel.this.getBackground());
-                        g2D.setColor(coloractual);
-                        g2D.draw(figura); 
-                    } else {
-                        if(figura != null){
-                                g2D = (Graphics2D)MiPanel.this.getGraphics();
-                                g2D.setXORMode(MiPanel.this.getBackground());
-                                g2D.setColor(coloractual);
-                                g2D.draw(figura);
-                        }
-                        p2 = evento.getPoint();
-                        figura = crearElipse(p1, p2);
-                        g2D = (Graphics2D)MiPanel.this.getGraphics();
-                        g2D.setXORMode( MiPanel.this.getBackground());
-                        g2D.setColor(coloractual);
-                        g2D.draw(figura); 
-                        
-                }
-        }
-        
-        
-        }  
+    /*
+   se crea un objeto para llamar al frame llamado imagen
+     */
+    imagen obj = new imagen();
 
+    /**
+     * constructor de la clase
+     */
+    public Creation01() {
+        setTitle("Creation");
+        initComponents();
+        filtro_manual.setEnabled(false);
+
+    }
+
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">                          
+    private void initComponents() {
+
+        jPanel1 = new javax.swing.JPanel();
+        filtro = new javax.swing.JComboBox<>();
+        jPanel2 = new javax.swing.JPanel();
+        girar = new javax.swing.JButton();
+        ac_filtro_manual = new javax.swing.JCheckBox();
+        filtro_manual = new javax.swing.JSlider();
+        jPanel3 = new javax.swing.JPanel();
+        RGB = new javax.swing.JComboBox<>();
+        jPanel4 = new javax.swing.JPanel();
+        Formatos = new javax.swing.JComboBox();
+        jLabel1 = new javax.swing.JLabel();
+        Guardar_B = new javax.swing.JButton();
+        jPanel5 = new javax.swing.JPanel();
+        jButton2 = new javax.swing.JButton();
+        jPanel6 = new javax.swing.JPanel();
+        jPanel7 = new javax.swing.JPanel();
+        jMenuBar1 = new javax.swing.JMenuBar();
+        Archivo = new javax.swing.JMenu();
+        jMenuItem1 = new javax.swing.JMenuItem();
+        Guardar = new javax.swing.JMenuItem();
+        jMenu3 = new javax.swing.JMenu();
+        jMenu4 = new javax.swing.JMenu();
+        jMenuItem6 = new javax.swing.JMenuItem();
+        jMenuItem7 = new javax.swing.JMenuItem();
+        jMenuItem8 = new javax.swing.JMenuItem();
+        jMenuItem9 = new javax.swing.JMenuItem();
+        jMenu5 = new javax.swing.JMenu();
+        jMenuItem10 = new javax.swing.JMenuItem();
+        jMenuItem11 = new javax.swing.JMenuItem();
+        jMenuItem12 = new javax.swing.JMenuItem();
+        jMenuItem13 = new javax.swing.JMenuItem();
+        jMenu2 = new javax.swing.JMenu();
+        jMenuItem2 = new javax.swing.JMenuItem();
+        jMenuItem3 = new javax.swing.JMenuItem();
+        jMenuItem4 = new javax.swing.JMenuItem();
+        jMenuItem5 = new javax.swing.JMenuItem();
+        jMenu6 = new javax.swing.JMenu();
+        jMenuItem14 = new javax.swing.JMenuItem();
+        jMenuItem15 = new javax.swing.JMenuItem();
+        jMenu7 = new javax.swing.JMenu();
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setBackground(new java.awt.Color(255, 255, 255));
+
+        jPanel1.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Filtros", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 13), new java.awt.Color(255, 0, 51))); // NOI18N
+
+        filtro.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Ninguno", "LookupOp", "Sharpen", "LowPass", "Detectar Bordes", "Negativo", "Espejo" }));
+        filtro.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                filtroActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(filtro, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(filtro, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+        );
+
+        jPanel2.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Girar", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 13), new java.awt.Color(255, 0, 51))); // NOI18N
+        jPanel2.setForeground(new java.awt.Color(255, 255, 255));
+
+        girar.setText("90 Grados");
+        girar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                girarActionPerformed(evt);
+            }
+        });
+
+        ac_filtro_manual.setText("Girar Manualmente");
+        ac_filtro_manual.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ac_filtro_manualActionPerformed(evt);
+            }
+        });
+
+        filtro_manual.setMajorTickSpacing(50);
+        filtro_manual.setMaximum(360);
+        filtro_manual.setPaintLabels(true);
+        filtro_manual.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                filtro_manualStateChanged(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(filtro_manual, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel2Layout.createSequentialGroup()
+                                .addGap(94, 94, 94)
+                                .addComponent(girar))
+                            .addGroup(jPanel2Layout.createSequentialGroup()
+                                .addGap(67, 67, 67)
+                                .addComponent(ac_filtro_manual)))
+                        .addGap(0, 0, Short.MAX_VALUE)))
+                .addGap(8, 8, 8))
+        );
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addComponent(girar)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(ac_filtro_manual)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(filtro_manual, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
+
+        jPanel3.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "RGB", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 13), new java.awt.Color(255, 0, 51))); // NOI18N
+
+        RGB.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Ninguno", "Escala de Grises", "Rojo", "Azul", "Amarillo", "Brillo" }));
+        RGB.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                RGBActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+        jPanel3.setLayout(jPanel3Layout);
+        jPanel3Layout.setHorizontalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(RGB, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+        jPanel3Layout.setVerticalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addComponent(RGB, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 15, Short.MAX_VALUE))
+        );
+
+        jPanel4.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel4.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Guardar", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 13), new java.awt.Color(255, 0, 51))); // NOI18N
+
+        Formatos.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "bmp", "gif", "jpeg", "jpg", "png" }));
+        Formatos.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                FormatosActionPerformed(evt);
+            }
+        });
+
+        jLabel1.setText("Formato:");
+
+        Guardar_B.setText("Guardar");
+        Guardar_B.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                Guardar_BActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
+        jPanel4.setLayout(jPanel4Layout);
+        jPanel4Layout.setHorizontalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addComponent(jLabel1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(Formatos, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(Guardar_B)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        jPanel4Layout.setVerticalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(Formatos, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel1)
+                    .addComponent(Guardar_B))
+                .addContainerGap(18, Short.MAX_VALUE))
+        );
+
+        jPanel5.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel5.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Recortar Imagen", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 13), new java.awt.Color(255, 0, 51))); // NOI18N
+
+        TAncho.setMaximum(0);
+        TAncho.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                TAnchoStateChanged(evt);
+            }
+        });
+
+        jButton2.setText("Guardar Recorte");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
+        jPanel5.setLayout(jPanel5Layout);
+        jPanel5Layout.setHorizontalGroup(
+            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel5Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(TAncho, javax.swing.GroupLayout.PREFERRED_SIZE, 282, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addGroup(jPanel5Layout.createSequentialGroup()
+                .addGap(71, 71, 71)
+                .addComponent(jButton2))
+        );
+        jPanel5Layout.setVerticalGroup(
+            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel5Layout.createSequentialGroup()
+                .addComponent(jButton2)
+                .addGap(12, 12, 12)
+                .addComponent(TAncho, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        mensaje.setBackground(new java.awt.Color(0, 0, 0));
+        mensaje.setForeground(new java.awt.Color(204, 0, 51));
+
+        javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
+        jPanel6.setLayout(jPanel6Layout);
+        jPanel6Layout.setHorizontalGroup(
+            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 165, Short.MAX_VALUE)
+        );
+        jPanel6Layout.setVerticalGroup(
+            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 0, Short.MAX_VALUE)
+        );
+
+        javax.swing.GroupLayout jPanel7Layout = new javax.swing.GroupLayout(jPanel7);
+        jPanel7.setLayout(jPanel7Layout);
+        jPanel7Layout.setHorizontalGroup(
+            jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 171, Short.MAX_VALUE)
+        );
+        jPanel7Layout.setVerticalGroup(
+            jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 0, Short.MAX_VALUE)
+        );
+
+        Archivo.setText("Archivo");
+
+        jMenuItem1.setText("Abrir");
+        jMenuItem1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem1ActionPerformed(evt);
+            }
+        });
+        Archivo.add(jMenuItem1);
+
+        Guardar.setText("Guardar");
+        Guardar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                GuardarActionPerformed(evt);
+            }
+        });
+        Archivo.add(Guardar);
+
+        jMenuBar1.add(Archivo);
+
+        jMenu3.setText("Zoom");
+
+        jMenu4.setText("Zoom (-)");
+
+        jMenuItem6.setText("25%");
+        jMenuItem6.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem6ActionPerformed(evt);
+            }
+        });
+        jMenu4.add(jMenuItem6);
+
+        jMenuItem7.setText("50%");
+        jMenuItem7.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem7ActionPerformed(evt);
+            }
+        });
+        jMenu4.add(jMenuItem7);
+
+        jMenuItem8.setText("75%");
+        jMenuItem8.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem8ActionPerformed(evt);
+            }
+        });
+        jMenu4.add(jMenuItem8);
+
+        jMenuItem9.setText("99%");
+        jMenuItem9.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem9ActionPerformed(evt);
+            }
+        });
+        jMenu4.add(jMenuItem9);
+
+        jMenu3.add(jMenu4);
+
+        jMenu5.setText("Zoom (+)");
+
+        jMenuItem10.setText("25%");
+        jMenuItem10.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem10ActionPerformed(evt);
+            }
+        });
+        jMenu5.add(jMenuItem10);
+
+        jMenuItem11.setText("50%");
+        jMenuItem11.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem11ActionPerformed(evt);
+            }
+        });
+        jMenu5.add(jMenuItem11);
+
+        jMenuItem12.setText("75%");
+        jMenuItem12.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem12ActionPerformed(evt);
+            }
+        });
+        jMenu5.add(jMenuItem12);
+
+        jMenuItem13.setText("99%");
+        jMenuItem13.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem13ActionPerformed(evt);
+            }
+        });
+        jMenu5.add(jMenuItem13);
+
+        jMenu3.add(jMenu5);
+
+        jMenuBar1.add(jMenu3);
+
+        jMenu2.setText("Figuras");
+
+        jMenuItem2.setText("Circulo");
+        jMenuItem2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem2ActionPerformed(evt);
+            }
+        });
+        jMenu2.add(jMenuItem2);
+
+        jMenuItem3.setText("Cuadrado");
+        jMenu2.add(jMenuItem3);
+
+        jMenuItem4.setText("Triángulo");
+        jMenuItem4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem4ActionPerformed(evt);
+            }
+        });
+        jMenu2.add(jMenuItem4);
+
+        jMenuItem5.setText("Linea");
+        jMenu2.add(jMenuItem5);
+
+        jMenuBar1.add(jMenu2);
+
+        jMenu6.setText("Imagen");
+
+        jMenuItem14.setText("Abrir imagen");
+        jMenu6.add(jMenuItem14);
+
+        jMenuItem15.setText("Guardar imagen");
+        jMenu6.add(jMenuItem15);
+
+        jMenuBar1.add(jMenu6);
+
+        jMenu7.setText("Filtros");
+        jMenuBar1.add(jMenu7);
+
+        setJMenuBar(jMenuBar1);
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(mensaje, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jPanel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jPanel5, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap())
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jPanel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(mensaje, javax.swing.GroupLayout.PREFERRED_SIZE, 15, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        pack();
+    }// </editor-fold>                        
+
+    private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {                                           
+        try {
+            //llamada del metodo cargar imagen
+            obj.cargaImag();
+            obj.setVisible(true);
+        } catch (Exception e) {
+            System.out.println("");
+        }
+    }                                          
+
+    private void filtroActionPerformed(java.awt.event.ActionEvent evt) {                                       
+        if (obj.isVisible()) {
+            //seleccion de los filtros del combobox
+            if (filtro.getSelectedItem() == "Ninguno") {
+                obj.r_efecto(0);
+                obj.repaint();
+                mos_msj("Imagen Original");
+            }
+            if (filtro.getSelectedItem() == "LookupOp") {
+                obj.r_efecto(14);
+                obj.repaint();
+                mos_msj("Se aplicó filtro LookupOp");
+            }
+            if (filtro.getSelectedItem() == "Sharpen") {
+                obj.r_efecto(13);
+                obj.repaint();
+                mos_msj("Se aplicó filtro Sharpen");
+            }
+            if (filtro.getSelectedItem() == "LowPass") {
+                obj.r_efecto(12);
+                obj.repaint();
+                mos_msj("Se aplicó filtro LowPass");
+            }
+            if (filtro.getSelectedItem() == "Detectar Bordes") {
+                obj.r_efecto(10);
+                obj.repaint();
+                mos_msj("Filtro de marcado de bordes");
+            }
+            if (filtro.getSelectedItem() == "Negativo") {
+                obj.r_efecto(9);
+                obj.repaint();
+                mos_msj("Se aplicó filtro Negativo");
+            }
+            if (filtro.getSelectedItem() == "Espejo") {
+                obj.r_efecto(7);
+                obj.repaint();
+                mos_msj("Se tranformo a espejo");
+            }
+        }
+        
+    }                                      
+
+    private void girarActionPerformed(java.awt.event.ActionEvent evt) {                                      
+        try {
+            //llamamada del metodo rotar imagen
+            obj.rotacionImagen(90);
+            obj.actualiza_frame();
+            obj.repaint();
+            mos_msj("Se giró la imagen");
+        } catch (Exception e) {
+            System.out.println("");
+        }
+    }                                     
+
+    private void ac_filtro_manualActionPerformed(java.awt.event.ActionEvent evt) {                                                 
+
+        if (ac_filtro_manual.isSelected()) {
+            filtro_manual.setEnabled(true);
+            mos_msj("Giro manual ACTIVADO");
+        } else {
+            filtro_manual.setEnabled(false);
+            mos_msj("Giro manual DESACTIVADO");
+        }
+    }                                                
+
+    private void filtro_manualStateChanged(javax.swing.event.ChangeEvent evt) {                                           
+        //llamada del metodo grados para girar la imagen
+        obj.Grados(filtro_manual.getValue());
+        obj.r_efecto(4);
+    }                                          
+
+    private void RGBActionPerformed(java.awt.event.ActionEvent evt) {                                    
+        //seleccion de los filtros del comboboxRGB
+        if (RGB.getSelectedItem() == "Ninguno") {
+            obj.r_efecto(0);
+            obj.repaint();
+            mos_msj("Imagen Original");
+        }
+        if (RGB.getSelectedItem() == "Escala de Grises") {
+            obj.r_efecto(3);
+            obj.repaint();
+            mos_msj("Se aplicó escala de grises");
+        }
+        if (RGB.getSelectedItem() == "Azul") {
+            obj.r_efecto(1);
+            obj.repaint();
+            mos_msj("Se aplicó filtro azul");
+        }
+        if (RGB.getSelectedItem() == "Rojo") {
+            obj.r_efecto(6);
+            obj.repaint();
+            mos_msj("Se aplico filtro rojo");
+        }
+        if (RGB.getSelectedItem() == "Amarillo") {
+            obj.r_efecto(5);
+            obj.repaint();
+            mos_msj("Se aplicó filtro amarillo");
+        }
+        if (RGB.getSelectedItem() == "Brillo") {
+            obj.r_efecto(2);
+            obj.repaint();
+            mos_msj("Se aplicó brillo");
+        }
+    }                                   
+
+    private void FormatosActionPerformed(java.awt.event.ActionEvent evt) {                                         
+        // TODO add your handling code here:
+    }                                        
+
+    private void GuardarActionPerformed(java.awt.event.ActionEvent evt) {                                        
+        try {
+            // llamada del metodo guardar
+            guardar();
+        } catch (IOException ex) {
+            System.out.println("");
+        }
+    }                                       
+
+    private void Guardar_BActionPerformed(java.awt.event.ActionEvent evt) {                                          
+        try {
+            //llamada del metodo guardar
+            guardar();
+        } catch (IOException ex) {
+            System.out.println("");
+        }
+    }                                         
+
+    private void TAnchoStateChanged(javax.swing.event.ChangeEvent evt) {                                    
+        //llamada del metodo recortar imagen
+        try {
+
+            obj.RecortarImagen();
+        } catch (Exception e) {
+        }
+    }                                   
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {                                         
+        //llamada del metodo guardar recorte
+        obj.GuardarRecorte();
+    }                                        
+
+    private void jMenuItem6ActionPerformed(java.awt.event.ActionEvent evt) {                                           
+        //metodo que llama al metodo tam para aplicar zoom al -%99
+        obj.tam(0.75, 0.75);
+        obj.r_efecto(11);
+
+        obj.repaint();
+
+    }                                          
+
+    private void jMenuItem7ActionPerformed(java.awt.event.ActionEvent evt) {                                           
+        //metodo que llama al metodo tam para aplicar zoom al  -%50
+        obj.tam(0.5, 0.5);
+        obj.r_efecto(11);
+        obj.repaint();
+    }                                          
+
+    private void jMenuItem8ActionPerformed(java.awt.event.ActionEvent evt) {                                           
+        //metodo que llama al metodo tam para aplicar zoom al -%25
+        obj.tam(0.25, 0.25);
+        obj.r_efecto(11);
+        obj.repaint();
+    }                                          
+
+    private void jMenuItem9ActionPerformed(java.awt.event.ActionEvent evt) {                                           
+        //metodo que llama al metodo tam para aplicar zoom al -%10:
+        obj.tam(0.1, 0.1);
+        obj.r_efecto(11);
+        obj.repaint();
+    }                                          
+
+    private void jMenuItem10ActionPerformed(java.awt.event.ActionEvent evt) {                                            
+        //metodo que llama al metodo tam para aplicar zoom al %25
+        obj.tam(1.25, 1.25);
+        obj.r_efecto(11);
+        obj.repaint();
+    }                                           
+
+    private void jMenuItem11ActionPerformed(java.awt.event.ActionEvent evt) {                                            
+        //metodo que llama al metodo tam para aplicar zoom al %50
+        obj.tam(1.5, 1.5);
+        obj.r_efecto(11);
+        obj.repaint();
+    }                                           
+
+    private void jMenuItem12ActionPerformed(java.awt.event.ActionEvent evt) {                                            
+        //metodo que llama al metodo tam para aplicar zoom al %75
+        obj.tam(1.75, 1.75);
+        obj.r_efecto(11);
+        obj.repaint();
+    }                                           
+
+    private void jMenuItem13ActionPerformed(java.awt.event.ActionEvent evt) {                                            
+        //metodo que llama al metodo tam para aplicar zoom al %99
+        obj.tam(1.9, 1.9);
+        obj.r_efecto(11);
+
+        obj.repaint();
+    }                                           
+
+    private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {                                           
+        // TODO add your handling code here:
+    }                                          
+
+    private void jMenuItem4ActionPerformed(java.awt.event.ActionEvent evt) {                                           
+        // TODO add your handling code here:
+    }                                          
+
+    /**
+     * metodo que guarda la imagen
+     *
+     * @throws IOException variable IOException
+     */
+    public void guardar() throws IOException {
+        try {
+
+            String formato = (String) Formatos.getSelectedItem();
+            File saveFile = new File("Imagen." + formato);
+            JFileChooser chooser = new JFileChooser();
+            chooser.setSelectedFile(saveFile);
+            int rFormato = chooser.showSaveDialog(Formatos);
+            if (rFormato == JFileChooser.APPROVE_OPTION) {
+                saveFile = chooser.getSelectedFile();
+                ImageIO.write(obj.getBi(), formato, saveFile);
+                mos_msj("Se guardó correctamente");
+            }
+        } catch (Exception e) {
+        }
+    }
+
+    public static void mos_msj(String Mensaje) {
+        mensaje.setText(Mensaje);
+    }
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String args[]) {
+        /* Set the Nimbus look and feel */
+        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         */
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (ClassNotFoundException ex) {
+            java.util.logging.Logger.getLogger(Creation01.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (InstantiationException ex) {
+            java.util.logging.Logger.getLogger(Creation01.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (IllegalAccessException ex) {
+            java.util.logging.Logger.getLogger(Creation01.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(Creation01.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+        //</editor-fold>
+        //</editor-fold>
+
+        /* Create and display the form */
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                new Creation01().setVisible(true);
+
+            }
+        });
+    }
+
+    // Variables declaration - do not modify                     
+    private javax.swing.JMenu Archivo;
+    public static javax.swing.JComboBox Formatos;
+    private javax.swing.JMenuItem Guardar;
+    private javax.swing.JButton Guardar_B;
+    private javax.swing.JComboBox<String> RGB;
+    public static final javax.swing.JSlider TAncho = new javax.swing.JSlider();
+    private javax.swing.JCheckBox ac_filtro_manual;
+    private javax.swing.JComboBox<String> filtro;
+    private javax.swing.JSlider filtro_manual;
+    private javax.swing.JButton girar;
+    private javax.swing.JButton jButton2;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JMenu jMenu2;
+    private javax.swing.JMenu jMenu3;
+    private javax.swing.JMenu jMenu4;
+    private javax.swing.JMenu jMenu5;
+    private javax.swing.JMenu jMenu6;
+    private javax.swing.JMenu jMenu7;
+    private javax.swing.JMenuBar jMenuBar1;
+    private javax.swing.JMenuItem jMenuItem1;
+    private javax.swing.JMenuItem jMenuItem10;
+    private javax.swing.JMenuItem jMenuItem11;
+    private javax.swing.JMenuItem jMenuItem12;
+    private javax.swing.JMenuItem jMenuItem13;
+    private javax.swing.JMenuItem jMenuItem14;
+    private javax.swing.JMenuItem jMenuItem15;
+    private javax.swing.JMenuItem jMenuItem2;
+    private javax.swing.JMenuItem jMenuItem3;
+    private javax.swing.JMenuItem jMenuItem4;
+    private javax.swing.JMenuItem jMenuItem5;
+    private javax.swing.JMenuItem jMenuItem6;
+    private javax.swing.JMenuItem jMenuItem7;
+    private javax.swing.JMenuItem jMenuItem8;
+    private javax.swing.JMenuItem jMenuItem9;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel4;
+    private javax.swing.JPanel jPanel5;
+    private javax.swing.JPanel jPanel6;
+    private javax.swing.JPanel jPanel7;
+    public static final javax.swing.JLabel mensaje = new javax.swing.JLabel();
+    // End of variables declaration                   
 }
+
+
